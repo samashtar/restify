@@ -1,4 +1,5 @@
 const errors = require('restify-errors')
+const Customer = require('../models/Customer')
 
 
 
@@ -7,10 +8,44 @@ const errors = require('restify-errors')
 
 
 module.exports = (server) => {
-    server.get('/customers', (req, res, next) => {
-        res.send({
-            msg: 'test'
+    server.get('/customers', async (req, res, next) => {
+        //Get Customers
+        try {
+            const customers = await Customer.find({})
+            res.send(customers)
+            next()
+        } catch (err) {
+            return next(new errors.InvalidContentError(err))
+        }
+    })
+
+
+    //Add Customer 
+    server.post('/customers', async (req, res, next) => {
+        // Check for JSON
+        if (!req.is(('application/json'))) {
+            return next(new errors.InvalidContentError("Expects 'application/json'"))
+        }
+
+        const {
+            name,
+            email,
+            balance
+        } = req.body
+
+        const customer = new Customer({
+            name,
+            email,
+            balance
         })
-        next()
+
+        try {
+            const newCustomer = await customer.save()
+            res.send(201)
+            next()
+        } catch (err) {
+            return next(new errors.InternalError(err.message))
+
+        }
     })
 }
