@@ -8,7 +8,8 @@ const server = restify.createServer()
 // MiddleWare
 server.use(restify.plugins.bodyParser())
 
-//protect routes
+//protect routes - now you cant access any routes except the auth,
+// you have to put a valid token in order to access other routes
 server.use(rjwt({
     secret: config.JWT_SECRET
 }).unless({
